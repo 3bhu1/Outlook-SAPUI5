@@ -322,7 +322,8 @@
 							]
 					}).addStyleClass("objectItem");
 		var oJSONDataModel;
-		oJSONDataModel= new sap.ui.model.json.JSONModel(oInboxMsg); 
+		oJSONDataModel= new sap.ui.model.json.JSONModel();
+		oJSONDataModel.setData(oInboxMsg);								  
 		oList.setModel(oJSONDataModel);
 		oList.bindItems('/',oItem);
   		var oInboxPage = new sap.m.Page({
