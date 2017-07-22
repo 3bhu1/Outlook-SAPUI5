@@ -1,0 +1,25 @@
+.sapMTextArea{
+	background-color: #F3FAB6;
+}
+.sapMMsgStrip{
+	background-color: #FDF3E7;
+}
+.profilePic{
+	border-radius: 23px;
+    margin: 7px 0 7px 7px;
+}
+.profileName{
+	margin: 10px 10px 0px 10px;
+	font-size: 25px;
+}
+.designation{
+	margin: 0px 0px 0px 10px;
+}
+.subjectLabel{
+	margin: 40px 10px 5px 20px;
+	font-size: 17px;
+}
+.shortText{
+	margin: 40px 10px 5px 10px;
+	font-size: 14px;
+}
