@@ -10,16 +10,26 @@
 }
 .profileName{
 	margin: 10px 10px 0px 10px;
-	font-size: 25px;
+	font-size: 20px;
 }
 .designation{
 	margin: 0px 0px 0px 10px;
 }
 .subjectLabel{
-	margin: 40px 10px 5px 20px;
+	color: #911945;
+	margin: 0px 10px 0px 0px;
 	font-size: 17px;
 }
 .shortText{
-	margin: 40px 10px 5px 10px;
+	margin: 0px 10px 0px 0px;
 	font-size: 14px;
+}
+.sapMListBGSolid .sapMLIB:not(.sapMLIBActive):not(.sapMLIBSelected):not(:hover) {
+    background: #EFDFE5;
+}
+.sapMIBar.sapMHeader-CTX{
+	background-color:#911945;
+}
+.sapMIBar-CTX .sapMTitle{
+	color: #FFF;
 }
