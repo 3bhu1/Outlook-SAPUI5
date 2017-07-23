@@ -24,8 +24,8 @@
         var oInboxMsg;
         // App configuration
         var authEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
-        var redirectUri = 'https://3bhu1.github.io';
-        var appId = '25cb0247-7ce1-4e57-a12b-88fcefb5533f';
+        var redirectUri = 'https://webidetesting6239763-p1942067858trial.dispatcher.hanatrial.ondemand.com/webapp/index.html';
+        var appId = '4f97cf07-6511-4fba-a35e-f937faf1b688';
         var scopes = 'openid profile User.Read Mail.Read';
         var cryptObj = window.crypto || window.msCrypto;
         function buildAuthUrl() {
@@ -43,14 +43,13 @@
           };
           url = authEndpoint + $.param(authParams);
           window.location.href = url;
-          //return authEndpoint + $.param(authParams);
         }
         render(window.location.hash);
         function render(hash) {
           var action = hash.split('=')[0];
           // Check for presence of access token
           var isAuthenticated = (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0);
-          renderNav(isAuthenticated);
+          //renderNav(isAuthenticated);
           renderTokens();
           var pagemap = {
             // Welcome page
@@ -95,41 +94,178 @@
           sessionStorage.tokenExpires = expireDate.getTime();
           sessionStorage.idToken = tokenresponse.id_token;
           // Redirect to home page
-          window.location.hash = '#';
-        }
-        function renderNav(isAuthed) {
-          if (isAuthed) {
-            $('.authed-nav').show();
-          }
-          else {
-            $('.authed-nav').hide();
-          }
+          window.location.href = redirectUri;
         }
         function renderTokens() {
           if (sessionStorage.accessToken) {
             // For demo purposes display the token and expiration
             var expireDate = new Date(parseInt(sessionStorage.tokenExpires));
-            //$('#token', window.parent.document).text(sessionStorage.accessToken);
-            //$('#expires-display', window.parent.document).text(expireDate.toLocaleDateString() + ' ' + expireDate.toLocaleTimeString());
             if (sessionStorage.idToken) {
               myAccessToken = sessionStorage.accessToken;
               myTokenID = sessionStorage.idToken;
               tokenExpire = "Token Expires On:" + expireDate;
-              console.log(sessionStorage.idToken);
-              console.log(sessionStorage.accessToken);
-              console.log(expireDate);
-              //$('#id-token', window.parent.document).text(sessionStorage.idToken);
             }
-            //$('#token-display', window.parent.document).show();
-          }
-          else {
-            //$('#token-display', window.parent.document).hide();
           }
         }
         function renderWelcome(isAuthed) {
-          //setActiveNav('#home-nav');
           if (isAuthed) {
-            console.log("Authenticated");
+	        var app = new sap.m.App();
+	        var oPage = new sap.m.Page({
+	          title: "Outlook Integration With SAPUI5",
+	          content: [
+	            new sap.m.MessageToast.show("Successfully Logged In!", {
+	              duration: 1000,                 
+	              my: "center center",            
+	              at: "center center",             
+	            }),
+	            new sap.m.VBox({
+	              items:[
+	                new sap.m.MessageStrip({
+	                  text: "Access Token",
+	                  type: "Information"
+	                }),
+	                new sap.m.TextArea({
+	                  value: myAccessToken,
+	                  growing: true,
+	                  width: "100%",
+	                  editable: false
+	                }),
+	                new sap.m.MessageStrip({
+	                  text: "ID Token",
+	                  type: "Information"
+	                }),
+	                new sap.m.TextArea({
+	                  value: myTokenID,
+	                  growing: true,
+	                  width: "100%",
+	                  editable: false
+	                }),
+	                new sap.m.MessageStrip({
+	                  text: tokenExpire,
+	                  type: "Warning"
+	                })
+	              ]
+	            })
+	          ],
+	          headerContent:[
+	            new sap.m.Button({
+	              text: "My Inbox",
+	              type: "Accept",
+	              press: function(){
+	                var emailAddress = "tribhuwanpant@outlook.com"; 
+	                //hardcoding it if you want code to get current user's email please refer to outlook page reference 
+	                getUserInboxMessages(emailAddress);
+	                function getAccessToken(callback) {
+	                  var now = new Date().getTime();
+	                  var isExpired = now > parseInt(sessionStorage.tokenExpires);
+	                  // Do we have a token already?
+	                  if (sessionStorage.accessToken && !isExpired) {
+	                    // Just return what we have
+	                    if (callback) {
+	                      callback(sessionStorage.accessToken);
+	                    }
+	                  }
+	                  else {
+	                    console.log("Token Expired! Re-login required!");
+	                  }
+	                }
+	                // function getUserEmailAddress(callback)
+	                function getUserInboxMessages(emailAddress, callback) {
+	                  getAccessToken(function(accessToken) {
+	                    if (accessToken) {
+	                      // Create a Graph client
+	                      var client = MicrosoftGraph.Client.init({
+	                        authProvider: (done) => {
+	                          // Just return the token
+	                          done(null, accessToken);
+	                        }
+	                      });
+	                      // Get the 10 newest messages
+	                      client
+	                        .api('/me/mailfolders/inbox/messages')
+	                        .header('X-AnchorMailbox', emailAddress)
+	                        .top(10)
+	                        .select('subject,from,receivedDateTime,bodyPreview')
+	                        .orderby('receivedDateTime DESC')
+	                        .get((err, res) => {
+	                        if (err) {
+	                          callback(null, err);
+	                        }
+	                        else {
+	                          var oList = new sap.m.List({
+	                          	
+	                          });
+	                          var oMail =  new sap.m.CustomListItem({
+	                            content:[
+	                              new sap.m.HBox({
+	                                items:[
+	                                  new sap.m.CheckBox({
+	                                  }),
+	                                  new sap.m.VBox({
+	                                    items:[
+	                                      new sap.m.Label({
+	                                        text: "{from/emailAddress/name}",
+	                                        width: "100%"
+	                                      }).addStyleClass("profileName"),
+	                                      new sap.m.Label({
+	                                        text: "{receivedDateTime}"
+	                                      }).addStyleClass("designation")
+	                                    ]
+	                                  }),
+	                                  new sap.m.HBox({
+	                                    items:[
+	                                      new sap.m.VBox({
+	                                        items:[
+	                                          new sap.m.Label({
+	                                            text: "{subject}",
+	                                            design: "Bold",
+	                                            width: "40%"
+	                                          }).addStyleClass("subjectLabel"),
+	                                          new sap.m.Label({
+	                                            text: "{bodyPreview}",
+	                                            width: "40%"
+	                                          }).addStyleClass("shortText")
+	                                        ]
+	                                      })
+	                                    ]
+	                                  })
+	                                ]
+	                              })
+	                            ]
+	                          });
+	                          var oJSONDataModel;
+	                          oJSONDataModel= new sap.ui.model.json.JSONModel();
+	                          oJSONDataModel.setData(res.value);
+	                          oList.setModel(oJSONDataModel);
+	                          oList.bindItems('/',oMail);
+	                          var oInboxPage = new sap.m.Page({
+	                            title: "Outlook Integration With SAPUI5",
+	                            content:[
+	                              oList				
+	                            ]
+	                          });
+	                          app.addPage(oInboxPage);
+	                          app.to(oInboxPage);
+	                        }
+	                      });
+	                    }
+	                    else {
+	                      var error = {
+	                        responseText: 'Could not retrieve access token' };
+	                      callback(null, error);
+	                    }
+	                  });
+	                }
+	              }
+	            }),
+	            new sap.m.Button({
+	              icon: "sap-icon://log",
+	              type: "Reject"
+	            })
+	          ]
+	        });
+	        app.addPage(oPage);
+	        app.placeAt("content");   
           }
           else {
             buildAuthUrl();
@@ -155,260 +291,10 @@
           params.forEach(function(param) {
             param = param.split('=');
             paramarray[param[0]] = param[1];
-          }
-                        );
+          });
           return paramarray;
         }
-        var app = new sap.m.App();
-        var oPage = new sap.m.Page({
-          title: "Outlook Integration With SAPUI5",
-          content: [
-            new sap.m.MessageToast.show("Successfully Logged In!", {
-              duration: 1000,                 
-              my: "center center",            
-              at: "center center",             
-            }
-                                       ),
-            new sap.m.VBox({
-              items:[
-                new sap.m.MessageStrip({
-                  text: "Access Token",
-                  type: "Information"
-                }
-                                      ),
-                new sap.m.TextArea({
-                  value: myAccessToken,
-                  growing: true,
-                  width: "100%",
-                  editable: false
-                }
-                                  ),
-                new sap.m.MessageStrip({
-                  text: "ID Token",
-                  type: "Information"
-                }
-                                      ),
-                new sap.m.TextArea({
-                  value: myTokenID,
-                  growing: true,
-                  width: "100%",
-                  editable: false
-                }
-                                  ),
-                new sap.m.MessageStrip({
-                  text: tokenExpire,
-                  type: "Warning"
-                }
-                                      )
-              ]
-            }
-                          )
-          ],
-          headerContent:[
-            new sap.m.Button({
-              text: "My Inbox",
-              type: "Accept",
-              press: function(){
-                //renderInbox();
-                var emailAddress = "tribhuwanpant@outlook.com";
-                getUserInboxMessages(emailAddress);
-                function getAccessToken(callback) {
-                  var now = new Date().getTime();
-                  var isExpired = now > parseInt(sessionStorage.tokenExpires);
-                  // Do we have a token already?
-                  if (sessionStorage.accessToken && !isExpired) {
-                    // Just return what we have
-                    if (callback) {
-                      callback(sessionStorage.accessToken);
-                    }
-                  }
-                  else {
-                    // Attempt to do a hidden iframe request
-                    makeSilentTokenRequest(callback);
-                  }
-                }
-                function getUserEmailAddress(callback) {
-                  if (sessionStorage.userEmail) {
-                    return sessionStorage.userEmail;
-                  }
-                  else {
-                    getAccessToken(function(accessToken) {
-                      if (accessToken) {
-                        // Create a Graph client
-                        var client = MicrosoftGraph.Client.init({
-                          authProvider: (done) => {
-                            // Just return the token
-                            done(null, accessToken);
-                          }
-                        }
-                                                               );
-                        // Get the Graph /Me endpoint to get user email address
-                        client
-                          .api('/me')
-                          .get((err, res) => {
-                          if (err) {
-                            callback(null, err);
-                          }
-                          else {
-                            callback(res.mail);
-                          }
-                        }
-                              );
-                      }
-                      else {
-                        var error = {
-                          responseText: 'Could not retrieve access token' };
-                        callback(null, error);
-                      }
-                    }
-                                  );
-                  }
-                }
-                function renderInbox() {
-                  //setActiveNav('#inbox-nav');
-                  //$('#inbox-status').text('Loading...');
-                  //$('#message-list').empty();
-                  //$('#inbox').show();
-                  // Get user's email address
-                  getUserEmailAddress(function(userEmail, error) {
-                    if (error) {
-                      renderError('getUserEmailAddress failed', error.responseText);
-                    }
-                    else {
-                      console.log(userEmail);
-                      //$('#inbox-status').text('Your email address is: ' + userEmail);
-                    }
-                  }
-                                     );
-                }
-                function getUserInboxMessages(emailAddress, callback) {
-                  getAccessToken(function(accessToken) {
-                    if (accessToken) {
-                      // Create a Graph client
-                      var client = MicrosoftGraph.Client.init({
-                        authProvider: (done) => {
-                          // Just return the token
-                          done(null, accessToken);
-                        }
-                      }
-                                                             );
-                      // Get the 10 newest messages
-                      client
-                        .api('/me/mailfolders/inbox/messages')
-                        .header('X-AnchorMailbox', emailAddress)
-                        .top(10)
-                        .select('subject,from,receivedDateTime,bodyPreview')
-                        .orderby('receivedDateTime DESC')
-                        .get((err, res) => {
-                        if (err) {
-                          callback(null, err);
-                        }
-                        else {
-                          //callback(res.value);
-                          //oInboxMsg = JSON.stringify(res.value);
-                          // var oModel = new sap.ui.model.json.JSONModel();
-                          // // Load JSON in model
-                          // oModel.loadData(oInboxMsg);
-                          // sap.ui.getCore().setModel(oModel); 
-                          //Create view to show Messages
-                          var oList = new sap.m.List({
-                          }
-                                                    );
-                          var oMail =  new sap.m.CustomListItem({
-                            content:[
-                              new sap.m.HBox({
-                                items:[
-                                  new sap.m.CheckBox({
-                                  }
-                                                    ),
-                                  new sap.m.VBox({
-                                    items:[
-                                      new sap.m.Label({
-                                        text: "{from/emailAddress/name}",
-                                        width: "100%"
-                                      }
-                                                     ).addStyleClass("profileName"),
-                                      new sap.m.Label({
-                                        text: "{receivedDateTime}"
-                                      }
-                                                     ).addStyleClass("designation")
-                                    ]
-                                  }
-                                                ),
-                                  new sap.m.HBox({
-                                    items:[
-                                      new sap.m.VBox({
-                                        items:[
-                                          new sap.m.Label({
-                                            text: "{subject}",
-                                            design: "Bold",
-                                            width: "40%"
-                                          }
-                                                         ).addStyleClass("subjectLabel"),
-                                          new sap.m.Label({
-                                            text: "{bodyPreview}",
-                                            width: "40%"
-                                          }
-                                                         ).addStyleClass("shortText")
-                                        ]
-                                      }
-                                                    )
-                                    ]
-                                  }
-                                                )
-                                ]
-                              }
-                                            )
-                            ]
-                          }
-                                                               );
-                          var oJSONDataModel;
-                          oJSONDataModel= new sap.ui.model.json.JSONModel();
-                          //var vjson = JSON.parse(oInboxMsg);
-                          oJSONDataModel.setData(res.value);
-                          //oJSONDataModel.loadData("data.json");
-                          oList.setModel(oJSONDataModel);
-                          oList.bindItems('/',oMail);
-                          var oInboxPage = new sap.m.Page({
-                            title: "Outlook Integration With SAPUI5",
-                            content:[
-                              oList				
-                            ]
-                          }
-                                                         );
-                          app.addPage(oInboxPage);
-                          app.to(oInboxPage);
-                        }
-                      }
-                            );
-                    }
-                    else {
-                      var error = {
-                        responseText: 'Could not retrieve access token' };
-                      callback(null, error);
-                    }
-                  }
-                                );
-                }
-              }
-            }
-                            ),
-            new sap.m.Button({
-              icon: "sap-icon://log",
-              type: "Reject"
-            }
-                            )
-          ]
-        }
-                                  );
-        // var oModel = new sap.ui.model.json.JSONModel();
-        // // Load JSON in model
-        // oModel.loadData("data.json");
-        // sap.ui.getCore().setModel(oModel);   		
-        app.addPage(oPage);
-        app.placeAt("content");
-      }
-                                 );
+      });
     </script>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
