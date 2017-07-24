@@ -24,4 +24,4 @@ Here's what the details of your app registration should look like when you are d
 
 ![alt text](https://docs.microsoft.com/en-us/outlook/rest/images/javascript-tutorial/app-registration.png)
 
-Replace the `appId` and `redirectUri` value in `index.html` with the application ID and redirect url you generated as part of the app registration process.
+Replace the `appId`, `redirectUri` and `emailAddress` value in `index.html` with the application ID, redirect url and email address you generated as part of the app registration process.
